@@ -29,7 +29,7 @@ class App extends Component {
 
   render(){
     return(
-      <div className="max-w-md mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
+      <div className="max-w-screen-lg mx-auto">
         <Header />
         <Posts posts={ this.state.posts }/>
       </div>
