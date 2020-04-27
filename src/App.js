@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 
 import Header from './components/Header';
-import './App.css';
+import Posts from './components/Posts';
+
+import './tailwind.generated.css';
 
 class App extends Component {
   // Load some posts into state.
@@ -27,9 +29,9 @@ class App extends Component {
 
   render(){
     return(
-      <div className="App">
+      <div className="max-w-md mx-auto flex p-6 bg-gray-100 mt-10 rounded-lg shadow-xl">
         <Header />
-        <Post posts={ this.state.posts }/>
+        <Posts posts={ this.state.posts }/>
       </div>
     )
   }
