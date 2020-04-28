@@ -15,7 +15,7 @@ const Post = ({ post }) => {
 				{post.title}
 				</h1>
 				<div
-				className="text-gray-700 text-base content"
+				className="text-gray-700 text-base"
 				dangerouslySetInnerHTML={{ __html: contentHTML }} />
 			</div>
 		</article>
