@@ -7,7 +7,7 @@ import 'react-quill/dist/quill.snow.css';
 class PostForm extends Component {
 	state = {
 		post: {
-		  id: this.props.post.id,
+		  id: this.props.post.key,
 		  slug: this.props.post.slug,
 		  title: this.props.post.title,
 		  content: this.props.post.content
@@ -16,10 +16,10 @@ class PostForm extends Component {
 	};
 
 	componentDidUpdate(prevProps, prevState) {
-		if (prevProps.post.id !== this.props.post.id) {
+		if (prevProps.post.key !== this.props.post.key) {
 		  this.setState({
 			post: {
-			  id: this.props.post.id,
+			  key: this.props.post.key,
 			  slug: this.props.post.slug,
 			  title: this.props.post.title,
 			  content: this.props.post.content

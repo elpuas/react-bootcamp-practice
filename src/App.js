@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import firebase from "./firebase";
 import SimpleStorage from "react-simple-storage";
 
 import Header from './components/Header';
@@ -8,14 +9,36 @@ import Post from './components/Post';
 import NotFound from './components/NotFound';
 import PostForm from './components/PostForm';
 import Message from './components/Message';
+import Login from './components/Login'
 
 import './tailwind.generated.css';
 
 class App extends Component {
   // Load some posts into state.
   state = {
+    isAuthenticated: false,
     posts: [],
     message: null
+  };
+
+  onLogin = (email, password) => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(user => {
+        this.setState({ isAuthenticated: true });
+      })
+      .catch(error => console.error(error));
+  };
+
+  onLogout = () => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        this.setState({ isAuthenticated: false });
+      })
+      .catch(error => console.error(error));
   };
 
 /**
@@ -41,15 +64,16 @@ getNewSlugFromTitle = title =>
  * @author Alfredo Navas <alfredo.navas@webdevstudios.com>
  */
 addNewPost = post => {
-    post.id = this.state.posts.length + 1;
-    post.slug = this.getNewSlugFromTitle(post.title);
-    this.setState({
-      posts: [...this.state.posts, post],
-      message: "saved"
-    });
-    setTimeout(() => {
-      this.setState({ message: null });
-    }, 1600);
+  const postsRef = firebase.database().ref("posts");
+  post.slug = this.getNewSlugFromTitle(post.title);
+  delete post.key;
+  postsRef.push(post);
+  this.setState({
+    message: "saved"
+  });
+  setTimeout(() => {
+    this.setState({ message: null });
+  }, 1600);
 };
 
 /**
@@ -92,40 +116,82 @@ deletePost = post => {
     }
   };
 
+  componentDidMount() {
+    const postsRef = firebase.database().ref("posts");
+    postsRef.on("value", snapshot => {
+      const posts = snapshot.val();
+      const newStatePosts = [];
+      for (let post in posts) {
+        newStatePosts.push({
+          key: post,
+          slug: posts[post].slug,
+          title: posts[post].title,
+          content: posts[post].content
+        });
+      }
+      this.setState({ posts: newStatePosts });
+    });
+  }
+
   render(){
     return(
       <Router>
         <div className="max-w-screen-lg mx-auto">
         <SimpleStorage parent={this} />
-        <Header />
+        <Header
+            isAuthenticated={this.state.isAuthenticated}
+            onLogout={this.onLogout}
+          />
         {this.state.message && <Message type={this.state.message} />}
         <Switch>
-          <Route
-            exact
-            path="/"
-            render={() => (
-              <Posts posts={this.state.posts} deletePost={this.deletePost} />
-            )}
+            <Route
+              exact
+              path="/"
+              render={() => (
+                <Posts
+                  isAuthenticated={this.state.isAuthenticated}
+                  posts={this.state.posts}
+                  deletePost={this.deletePost}
+                />
+              )}
             />
             <Route
-            path="/post/:postSlug"
-            render={props => {
-              const post = this.state.posts.find(
-                post => post.slug === props.match.params.postSlug
-              );
-                return <Post post={post} />;
+              path="/post/:postSlug"
+              render={props => {
+                const post = this.state.posts.find(
+                  post => post.slug === props.match.params.postSlug
+                );
+                if (post) {
+                  return <Post post={post} />;
+                } else {
+                  return <Redirect to="/" />;
+                }
+              }}
+            />
+            <Route
+              exact
+              path="/login"
+              render={() =>
+                !this.state.isAuthenticated ? (
+                  <Login onLogin={this.onLogin} />
+                ) : (
+                  <Redirect to="/" />
+                )
               }
-            }
             />
             <Route
               exact
               path="/new"
-              render={() => (
-                <PostForm
-                  addNewPost={this.addNewPost}
-                  post={{ id: 0, slug: "", title: "", content: "" }}
-                />
-              )}
+              render={() =>
+                this.state.isAuthenticated ? (
+                  <PostForm
+                    addNewPost={this.addNewPost}
+                    post={{ key: null, slug: "", title: "", content: "" }}
+                  />
+                ) : (
+                  <Redirect to="/login" />
+                )
+              }
             />
             <Route
               path="/edit/:postSlug"
@@ -133,16 +199,17 @@ deletePost = post => {
                 const post = this.state.posts.find(
                   post => post.slug === props.match.params.postSlug
                 );
-                if (post) {
+                if (post && this.state.isAuthenticated) {
                   return <PostForm updatePost={this.updatePost} post={post} />;
+                } else if (post && !this.state.isAuthenticated) {
+                  return <Redirect to="/login" />;
                 } else {
                   return <Redirect to="/" />;
                 }
               }}
             />
-            <Route
-            component={NotFound} />
-        </Switch>
+            <Route component={NotFound} />
+          </Switch>
       </div>
       </Router>
     )
