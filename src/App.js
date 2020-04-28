@@ -84,19 +84,16 @@ addNewPost = post => {
  * @author Alfredo Navas <alfredo.navas@webdevstudios.com>
  */
 updatePost = post => {
-    post.slug = this.getNewSlugFromTitle(post.title);
-    const index = this.state.posts.findIndex(p => p.id === post.id);
-    const posts = this.state.posts
-      .slice(0, index)
-      .concat(this.state.posts.slice(index + 1));
-    const newPosts = [...posts, post].sort((a, b) => a.id - b.id);
-    this.setState({
-      posts: newPosts,
-      message: "updated"
-    });
-    setTimeout(() => {
-      this.setState({ message: null });
-    }, 1600);
+  const postRef = firebase.database().ref("posts/" + post.key);
+  postRef.update({
+    slug: this.getNewSlugFromTitle(post.title),
+    title: post.title,
+    content: post.content
+  });
+  this.setState({ message: "updated" });
+  setTimeout(() => {
+    this.setState({ message: null });
+  }, 1600);
 };
 
 /**
@@ -107,14 +104,15 @@ updatePost = post => {
  * @author Alfredo Navas <alfredo.navas@webdevstudios.com>
  */
 deletePost = post => {
-    if (window.confirm("Delete this post?")) {
-      const posts = this.state.posts.filter(p => p.id !== post.id);
-      this.setState({ posts, message: "deleted" });
-      setTimeout(() => {
-        this.setState({ message: null });
-      }, 1600);
-    }
-  };
+  if (window.confirm("Delete this post?")) {
+    const postRef = firebase.database().ref("posts/" + post.key);
+    postRef.remove();
+    this.setState({ message: "deleted" });
+    setTimeout(() => {
+      this.setState({ message: null });
+    }, 1600);
+  }
+};
 
   componentDidMount() {
     const postsRef = firebase.database().ref("posts");
