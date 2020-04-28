@@ -6,24 +6,41 @@ import 'react-quill/dist/quill.snow.css';
 
 class PostForm extends Component {
 	state = {
-		title: "",
-		content: "",
-		saved: false,
+		post: {
+		  id: this.props.post.id,
+		  slug: this.props.post.slug,
+		  title: this.props.post.title,
+		  content: this.props.post.content
+		},
+		saved: false
 	};
+
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.post.id !== this.props.post.id) {
+		  this.setState({
+			post: {
+			  id: this.props.post.id,
+			  slug: this.props.post.slug,
+			  title: this.props.post.title,
+			  content: this.props.post.content
+			}
+		  });
+		}
+	}
 
 	handlePostForm = e => {
 		e.preventDefault();
-		if (this.state.title) {
-		  const post = {
-			title: this.state.title,
-			content: this.state.content
-		  };
-		  this.props.addNewPost(post);
+		if (this.state.post.title) {
+		  if (this.props.updatePost) {
+			this.props.updatePost(this.state.post);
+		  } else {
+			this.props.addNewPost(this.state.post);
+		  }
 		  this.setState({ saved: true });
 		} else {
 		  alert("Title required");
 		}
-	};
+	  };
 
 	render () {
 		if (this.state.saved === true) {
@@ -42,9 +59,17 @@ class PostForm extends Component {
 						className="block text-gray-700 text-sm font-bold mb-2">Title:</label>
 						<input
 						className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+						defaultValue={this.props.title}
 						id="form-title"
 						value={this.state.title}
-						onChange={ e => this.setState({title: e.target.value })}
+						onChange={e =>
+							this.setState({
+							  post: {
+								...this.state.post,
+								title: e.target.value
+							  }
+							})
+						  }
 						/>
 					</div>
 					<div className="mb-4">
@@ -52,8 +77,15 @@ class PostForm extends Component {
 							htmlFor="form-title"
 							className="block text-gray-700 text-sm font-bold mb-2">Content:</label>
 							<Quill
+							defaultValue={this.state.post.content}
 							onChange={(content, delta, source, editor) => {
-								this.setState({ content: editor.getContents() }); }}
+								this.setState({
+								post: {
+									...this.state.post,
+									content: editor.getContents()
+								}
+								});
+							}}
 							/>
 					</div>
 					<div className="flex items-center justify-between">
