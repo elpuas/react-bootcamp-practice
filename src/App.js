@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import SimpleStorage from "react-simple-storage";
 
 import Header from './components/Header';
 import Posts from './components/Posts';
@@ -95,6 +96,7 @@ deletePost = post => {
     return(
       <Router>
         <div className="max-w-screen-lg mx-auto">
+        <SimpleStorage parent={this} />
         <Header />
         {this.state.message && <Message type={this.state.message} />}
         <Switch>
