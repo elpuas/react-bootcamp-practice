@@ -30,7 +30,7 @@ getNewSlugFromTitle = title =>
         .toLowerCase()
         .split(" ")
         .join("-")
-  );
+);
 
 /**
  * Add New Post
@@ -49,7 +49,7 @@ addNewPost = post => {
     setTimeout(() => {
       this.setState({ message: null });
     }, 1600);
-  };
+};
 
 /**
  * Update post.
@@ -72,6 +72,23 @@ updatePost = post => {
     setTimeout(() => {
       this.setState({ message: null });
     }, 1600);
+};
+
+/**
+ * Delete post.
+ *
+ * @param Object post.
+ * @memberof App
+ * @author Alfredo Navas <alfredo.navas@webdevstudios.com>
+ */
+deletePost = post => {
+    if (window.confirm("Delete this post?")) {
+      const posts = this.state.posts.filter(p => p.id !== post.id);
+      this.setState({ posts, message: "deleted" });
+      setTimeout(() => {
+        this.setState({ message: null });
+      }, 1600);
+    }
   };
 
   render(){
@@ -84,7 +101,9 @@ updatePost = post => {
           <Route
             exact
             path="/"
-            render={() => <Posts posts={this.state.posts} /> }
+            render={() => (
+              <Posts posts={this.state.posts} deletePost={this.deletePost} />
+            )}
             />
             <Route
             path="/post/:postSlug"
