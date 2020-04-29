@@ -3,13 +3,13 @@ import "firebase/auth";
 import "firebase/database";
 
 const config = {
-	apiKey: "AIzaSyDjcL6ak2FHXLghrDRasAGPkT4gct2Oamg",
-    authDomain: "react-demo-project-56b52.firebaseapp.com",
-    databaseURL: "https://react-demo-project-56b52.firebaseio.com",
-    projectId: "react-demo-project-56b52",
-    storageBucket: "react-demo-project-56b52.appspot.com",
-    messagingSenderId: "714269912202",
-    appId: "1:714269912202:web:6b83325659d7f67cc15173"
+	apiKey: "AIzaSyBBpy24koYwAkOsjnnR_02z8-6vfb255MA",
+    authDomain: "react-bootcamp-project.firebaseapp.com",
+    databaseURL: "https://react-bootcamp-project.firebaseio.com",
+    projectId: "react-bootcamp-project",
+    storageBucket: "react-bootcamp-project.appspot.com",
+    messagingSenderId: "191850796439",
+    appId: "1:191850796439:web:a836abf1d7e7caa89960d2"
 }
 firebase.initializeApp(config);
 
